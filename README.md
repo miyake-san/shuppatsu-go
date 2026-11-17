@@ -1,2 +1,177 @@
 # shuppatsu-go
+
 A spec-driven Golang starter template pre-configured for Kiro, featuring opinionated project layout, steering rules, and automated workflows.
+
+The `.kiro/` folder is a self-contained **Go + AWS kit**: steering, skills (including a teaching skill and design-pattern skills), custom agents, quality hooks and an MCP configuration. It works offline: nothing needs `npx`, `uvx` or internet access, which makes it usable in restricted corporate environments.
+
+## Contents
+
+```text
+.kiro/
+├── shp-kit.md                      # kit summary (also shipped inside the zips)
+├── steering/
+│   ├── product.md                  # project: product context (fill in)
+│   ├── tech.md                     # project: stack, toolchain, commands
+│   ├── structure.md                # project: layout and dependency rules
+│   ├── shp-go-style.md             # Go idioms, errors, concurrency, version-gated features
+│   ├── shp-go-testing.md           # testing conventions
+│   ├── shp-aws-go-conventions.md   # AWS SDK v2, Lambda, IAM, ops
+│   └── shp-security.md             # security baseline
+├── skills/
+│   ├── shp-teach/                  # explains WHY code is written that way, with sources
+│   ├── shp-go-review/
+│   ├── shp-aws-sdk-go/
+│   ├── shp-aws-lambda-go/
+│   └── shp-patterns-{creational,structural,behavioral,concurrency,architecture,resilience}/
+├── agents/
+│   ├── shp-go-mentor.md            # read-only teacher (uses shp-teach)
+│   ├── shp-go-reviewer.md          # read-only reviewer (uses shp-go-review)
+│   └── shp-aws-go-builder.md       # builder with AWS guardrails
+├── hooks/
+│   └── shp-go-quality.json         # gofmt on save; go vet + go test on Stop; optional extras
+└── settings/
+    └── mcp.json                    # gopls + AWS MCP servers, all disabled by default
+dist/
+├── shuppatsu-go-kiro-kit-project.zip
+└── shuppatsu-go-kiro-kit-global.zip
+docs/
+└── references.md                   # research, links and complementary materials
+```
+
+## Quick start
+
+### Option A: use this repository as a template
+
+Clone it (or use it as a GitHub template), open the folder in Kiro, then:
+
+1. Fill in `.kiro/steering/product.md` and pick your IaC tool in `.kiro/steering/tech.md`.
+2. Run `go mod init <module-path>`: the Stop hooks run `go vet` and `go test` and expect a `go.mod` at the workspace root.
+3. Optionally enable MCP servers in `.kiro/settings/mcp.json` (see below).
+
+### Option B: restricted environment (unzip the kit)
+
+Download the zips from [`dist/`](dist/) (for example `https://github.com/miyake-san/shuppatsu-go/raw/main/dist/shuppatsu-go-kiro-kit-project.zip`). Each zip's root maps directly onto a `.kiro` folder.
+
+| Zip | Unzip into | What you get |
+|---|---|---|
+| `shuppatsu-go-kiro-kit-project.zip` | `<your-project>\.kiro\` | Everything: steering, skills, agents, hooks, `settings/mcp.json` |
+| `shuppatsu-go-kiro-kit-global.zip` | `%USERPROFILE%\.kiro\` | Only `shp-*` skills, agents and generic steering. No hooks, no `mcp.json`, no product-specific steering |
+
+```powershell
+# Project level, from the project root
+Expand-Archive .\shuppatsu-go-kiro-kit-project.zip -DestinationPath .\.kiro
+
+# User level (all projects)
+Expand-Archive .\shuppatsu-go-kiro-kit-global.zip -DestinationPath $HOME\.kiro
+```
+
+Every file in the global zip is named `shp-*`, so it never overwrites your existing global files. The project zip also contains `product.md`, `tech.md`, `structure.md` and `settings/mcp.json`; avoid `-Force` if your project already has them. Restart Kiro or open a new chat after unzipping.
+
+## What the kit provides
+
+### Skills
+
+| Skill | Use it when |
+|---|---|
+| `shp-teach` | You want to understand **why** code is written a certain way. Classifies each decision (language rule, idiom, pattern, platform guidance, project convention, trade-off), researches `go doc` and official Go docs, cites sources, and ends with a comprehension check. |
+| `shp-go-review` | Reviewing a diff, PR or spec task output with a severity-ranked checklist. |
+| `shp-aws-sdk-go` | Writing or explaining code that uses the AWS SDK for Go v2 (config, clients, paginators, waiters, errors, testing, v1 migration). |
+| `shp-aws-lambda-go` | Building, packaging (including Windows) and deploying Go Lambda functions on `provided.al2023`. |
+| `shp-patterns-creational` | Constructors, functional options, builder, factory, `sync.Once`, pools. |
+| `shp-patterns-structural` | Adapter, decorator/middleware, facade, proxy, composite, embedding. |
+| `shp-patterns-behavioral` | Strategy, observer, command, chain of responsibility, state, template method, `iter.Seq` iterators, visitor. |
+| `shp-patterns-concurrency` | errgroup, worker pools, pipelines, fan-out/fan-in, semaphores, timeouts, shutdown. |
+| `shp-patterns-architecture` | Hexagonal/ports and adapters, service layer, repository, DI, unit of work, CQRS-lite, mapping to Kiro specs. |
+| `shp-patterns-resilience` | Timeouts, retries with jitter, idempotency, circuit breaker, bulkhead, outbox, saga, DLQs, SQS partial batch failures. |
+
+Try it: *"Use shp-teach to explain why `internal/order/service.go` is written this way"* or select code and ask *"why is this idiomatic?"*.
+
+### Agents
+
+| Agent | Can edit? | Purpose |
+|---|---|---|
+| `shp-go-mentor` | No | Teaches with `shp-teach`; may run `go doc`, `git log/blame` and use the web. |
+| `shp-go-reviewer` | No | Reviews with `shp-go-review`; may run `go vet/test/build`, `gofmt -l`, linters, `git diff`. |
+| `shp-aws-go-builder` | Yes | Implements Go/AWS code. Go tooling allowed; `aws`, `sam`, `cdk`, `terraform`, `git commit/push` ask first; destructive commands denied. |
+
+All agents deny reading credential files (`.env`, `*.pem`, `*.key`, `credentials*`, ...).
+
+### Steering
+
+| File | Inclusion | Scope |
+|---|---|---|
+| `product.md`, `tech.md`, `structure.md` | always | project only |
+| `shp-security.md` | always | project and global |
+| `shp-go-style.md` | `**/*.go`, `**/go.mod` | project and global |
+| `shp-go-testing.md` | `**/*_test.go` | project and global |
+| `shp-aws-go-conventions.md` | auto (AWS-related requests) | project and global |
+
+### Hooks (`.kiro/hooks/shp-go-quality.json`, Kiro hooks v1 format)
+
+| Hook | Trigger | Default |
+|---|---|---|
+| `shp-gofmt-on-save` | `PostFileSave` on `*.go` | on |
+| `shp-go-vet-on-stop` | `Stop` | on |
+| `shp-go-test-on-stop` (`-short`) | `Stop` | on |
+| `shp-golangci-lint-on-stop` | `Stop` | off (needs golangci-lint v2) |
+| `shp-go-test-race-on-stop` | `Stop` | off (needs cgo / C toolchain) |
+| `shp-govulncheck-on-stop` | `Stop` | off (needs govulncheck + network) |
+| `shp-review-after-spec-task` | `PostTaskExec` (agent action) | off (uses extra credits) |
+
+Turn hooks on or off by editing `"enabled"` in the JSON file.
+
+### MCP servers (`.kiro/settings/mcp.json`)
+
+All are **disabled by default** so nothing fails in a locked-down environment. Set `"disabled": false` for the ones you can run.
+
+| Server | Requires | Notes |
+|---|---|---|
+| `gopls` | `go install golang.org/x/tools/gopls@latest` (v0.20+) | Official Go language server in MCP mode (`gopls mcp`) |
+| `aws-mcp` | `uv`, AWS credentials | AWS MCP Server via `mcp-proxy-for-aws-cli`; change `AWS_REGION` to your Region |
+| `aws-serverless` | `uv`, AWS profile | awslabs Serverless MCP server |
+| `aws-documentation` | `uv` | Search AWS documentation |
+
+## Naming convention
+
+Every kit asset (skill, agent, generic steering file, hook) starts with **`shp-`** (short for shuppatsu). This guarantees that:
+
+- no two kit skills share a name, and every skill's `name` matches its folder;
+- kit skills never collide with popular complementary sets (`golang-*` from samber, `go-*` from cxuu, `aws-*` from the Agent Toolkit for AWS, `aidlc*`), so Kiro's "workspace overrides global" rule never silently shadows one with the other.
+
+When you add a skill, keep the prefix, use lower-case words separated by hyphens (max 64 characters), make the folder name equal to `name:`, and check that the name is not already used. See [`docs/references.md`](docs/references.md#name-map-kit-vs-complementary-skills) for overlaps in purpose with external skills.
+
+## Requirements
+
+- Kiro IDE 1.x or Kiro CLI v3 (hooks use the v1 format with PascalCase triggers).
+- Go toolchain. The kit targets Go 1.27; the `go` directive in your `go.mod` decides which features the agents may use.
+- Optional: `gopls`, `golangci-lint` v2, `govulncheck`, `uv` (AWS MCP servers), AWS credentials.
+
+## Rebuilding the zips after changes
+
+PowerShell 7, from the repository root:
+
+```powershell
+Compress-Archive -Path .kiro\* -DestinationPath dist\shuppatsu-go-kiro-kit-project.zip -Force
+
+$stage = Join-Path $env:TEMP 'shp-global'
+Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory "$stage\steering" | Out-Null
+Copy-Item .kiro\shp-kit.md, .kiro\skills, .kiro\agents $stage -Recurse
+Copy-Item .kiro\steering\shp-*.md "$stage\steering"
+Compress-Archive -Path "$stage\*" -DestinationPath dist\shuppatsu-go-kiro-kit-global.zip -Force
+```
+
+Bash, from `.kiro/`:
+
+```bash
+zip -r -X ../dist/shuppatsu-go-kiro-kit-project.zip shp-kit.md steering skills agents hooks settings
+zip -r -X ../dist/shuppatsu-go-kiro-kit-global.zip shp-kit.md steering/shp-*.md skills agents
+```
+
+## References and complementary materials
+
+[`docs/references.md`](docs/references.md) lists the research behind this kit: Kiro documentation (powers, skills, steering, hooks, custom agents, MCP), official AWS assets (Agent Toolkit for AWS, Kiro powers, awslabs MCP servers, AI-DLC), Go skill collections, the gopls MCP server, and the primary Go and AWS documentation used to write the skills.
+
+## License
+
+[MIT](LICENSE)

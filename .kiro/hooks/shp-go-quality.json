@@ -1,0 +1,82 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "shp-gofmt-on-save",
+      "description": "Formats the saved Go file with gofmt. gofmt only rewrites the file when formatting changes.",
+      "trigger": "PostFileSave",
+      "matcher": "\\.go$",
+      "action": {
+        "type": "command",
+        "command": "gofmt -w \"{{filePath}}\""
+      },
+      "timeout": 30,
+      "enabled": true
+    },
+    {
+      "name": "shp-go-vet-on-stop",
+      "description": "Runs go vet on the whole module when the agent finishes a turn. Requires a go.mod in the workspace root.",
+      "trigger": "Stop",
+      "action": {
+        "type": "command",
+        "command": "go vet ./..."
+      },
+      "timeout": 180,
+      "enabled": true
+    },
+    {
+      "name": "shp-go-test-on-stop",
+      "description": "Runs the fast test suite (-short) when the agent finishes a turn. Requires a go.mod in the workspace root.",
+      "trigger": "Stop",
+      "action": {
+        "type": "command",
+        "command": "go test -short ./..."
+      },
+      "timeout": 600,
+      "enabled": true
+    },
+    {
+      "name": "shp-golangci-lint-on-stop",
+      "description": "Optional. Enable when golangci-lint v2 is installed.",
+      "trigger": "Stop",
+      "action": {
+        "type": "command",
+        "command": "golangci-lint run"
+      },
+      "timeout": 300,
+      "enabled": false
+    },
+    {
+      "name": "shp-go-test-race-on-stop",
+      "description": "Optional. The race detector needs cgo and a C toolchain, usually unavailable on locked-down Windows machines.",
+      "trigger": "Stop",
+      "action": {
+        "type": "command",
+        "command": "go test -race -short ./..."
+      },
+      "timeout": 900,
+      "enabled": false
+    },
+    {
+      "name": "shp-govulncheck-on-stop",
+      "description": "Optional. Enable when govulncheck is installed and the vulnerability database is reachable.",
+      "trigger": "Stop",
+      "action": {
+        "type": "command",
+        "command": "govulncheck ./..."
+      },
+      "timeout": 300,
+      "enabled": false
+    },
+    {
+      "name": "shp-review-after-spec-task",
+      "description": "Optional. After each spec task, reviews the changed Go files with the shp-go-review checklist. Uses extra agent credits.",
+      "trigger": "PostTaskExec",
+      "action": {
+        "type": "agent",
+        "prompt": "Use the shp-go-review skill to review the Go files changed by the spec task that just finished. Report findings in the skill's output format. Do not modify files."
+      },
+      "enabled": false
+    }
+  ]
+}
