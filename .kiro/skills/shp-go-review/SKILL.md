@@ -63,6 +63,26 @@ metadata:
 - No allocation or I/O inside hot loops without need; preallocate when size is known.
 - Claims about performance backed by a benchmark (`b.Loop()`).
 
+### Five axes (cross-check before reporting)
+Every finding belongs to one axis; make sure each axis was actually looked at:
+1. **Correctness:** does it do what the spec says, including edge cases and failure paths?
+2. **Readability:** could a new teammate follow it? Names, structure, comments that explain why.
+3. **Architecture:** package boundaries, dependency direction, fit with `structure.md` and existing patterns.
+4. **Security:** input handling, secrets, IAM, dependencies (`shp-security`).
+5. **Performance:** only where it matters, backed by a benchmark or profile.
+
+### Change size
+- Prefer reviews of about 100 changed lines; above ~300 lines ask the author to split (`shp-incremental-build`), or review in slices and say so.
+- Flag unrelated changes mixed into the diff (renames, reformatting, drive-by fixes) as **minor** and ask for a separate change.
+- Approve when the change definitely improves overall code health, even if it is not how you would write it; mark preferences as **nit**.
+
+### Dead and unverified claims
+- "Fixed" or "done" without evidence (test output, command run) is a **major** finding.
+- Tests deleted, skipped (`t.Skip`) or assertions loosened in the same diff are a **blocker** until explained.
+
+## Audit mode (optional): pattern verdicts
+When the user asks to audit design patterns or over-engineering, list each pattern found with `file:line` evidence and a verdict: **Appropriate**, **Over-engineered**, **Misapplied** or **Degraded** (scale and decision process in `shp-patterns-select`). For risky changes, also run `shp-doubt-check`.
+
 ## Output format
 
 ```markdown
@@ -88,3 +108,8 @@ Severity: **blocker** (bug, data loss, security issue, broken build), **major** 
 - Go Code Review Comments: https://go.dev/wiki/CodeReviewComments
 - Go Test Comments: https://go.dev/wiki/TestComments
 - Effective Go: https://go.dev/doc/effective_go
+- Google Engineering Practices, code review standard and small changes: https://google.github.io/eng-practices/review/reviewer/standard.html , https://google.github.io/eng-practices/review/developer/small-cls.html
+
+## Inspired by
+
+The five-axis pass, ~100-line change sizing and "evidence for done" rule are inspired by `code-review-and-quality` in addyosmani/agent-skills (MIT) and Google's Engineering Practices; the pattern verdict scale by jaeleeps/gof-patterns (MIT). See `THIRD_PARTY_NOTICES.md`.

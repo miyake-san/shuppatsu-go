@@ -18,7 +18,10 @@ The `.kiro/` folder is a self-contained **Go + AWS kit**: steering, skills (incl
 │   ├── shp-aws-go-conventions.md   # AWS SDK v2, Lambda, IAM, ops
 │   └── shp-security.md             # security baseline
 ├── skills/
+│   ├── shp-router/                 # entry point: which skill for which phase
 │   ├── shp-teach/                  # explains WHY code is written that way, with sources
+│   ├── shp-tdd/  shp-incremental-build/  shp-debugging/  shp-doubt-check/  shp-simplify/  shp-adr/
+│   ├── shp-patterns-select/  shp-api-design/  shp-observability/
 │   ├── shp-go-review/
 │   ├── shp-aws-sdk-go/
 │   ├── shp-aws-lambda-go/
@@ -35,7 +38,8 @@ dist/
 ├── shuppatsu-go-kiro-kit-project.zip
 └── shuppatsu-go-kiro-kit-global.zip
 docs/
-└── references.md                   # research, links and complementary materials
+└── references.md                   # research, links, complementary materials, v1.1 changelog
+THIRD_PARTY_NOTICES.md              # credits and MIT notices for the projects that inspired v1.1 skills
 ```
 
 ## Quick start
@@ -74,15 +78,27 @@ Every file in the global zip is named `shp-*`, so it never overwrites your exist
 | Skill | Use it when |
 |---|---|
 | `shp-teach` | You want to understand **why** code is written a certain way. Classifies each decision (language rule, idiom, pattern, platform guidance, project convention, trade-off), researches `go doc` and official Go docs, cites sources, and ends with a comprehension check. |
-| `shp-go-review` | Reviewing a diff, PR or spec task output with a severity-ranked checklist. |
+| `shp-router` | Start of a task, or unsure which skill applies. Maps phases (define, design, build, verify, review, ship) to skills and typical flows. |
+| `shp-tdd` | Implementing behaviour or fixing a bug test-first: red-green-refactor, table-driven tests, fakes, fuzz and benchmarks, `go test` evidence gate. |
+| `shp-incremental-build` | Delivering a spec task as thin, always-green slices (~100 lines) with scope discipline. |
+| `shp-debugging` | A test fails, a goroutine hangs, a Lambda errors: reproduce, localize, reduce, fix, guard, with `-race`, Delve, pprof and CloudWatch. |
+| `shp-doubt-check` | High-stakes or irreversible changes: state the claim, attack the assumptions, test the cheapest, record a verdict. |
+| `shp-simplify` | Behaviour-preserving cleanup of working code, guarded by tests and Chesterton's Fence. |
+| `shp-adr` | Recording a lasting architecture decision (`docs/adr`) with options, consequences and a revisit trigger. |
+| `shp-patterns-select` | Before adding an interface, layer or pattern: reuse, refactor first, introduce a pattern, or do nothing (Rule of Three); verdicts for over-engineering. |
+| `shp-api-design` | Designing exported Go APIs, HTTP/JSON endpoints and event schemas; error semantics, versioning, compatibility checks. |
+| `shp-observability` | Adding `log/slog` logging, RED/USE metrics, OpenTelemetry traces, EMF metrics, health checks and SLO alerts. |
+| `shp-go-review` | Reviewing a diff, PR or spec task output with a severity-ranked checklist, five axes, change-size rules and an optional pattern-verdict audit. |
 | `shp-aws-sdk-go` | Writing or explaining code that uses the AWS SDK for Go v2 (config, clients, paginators, waiters, errors, testing, v1 migration). |
 | `shp-aws-lambda-go` | Building, packaging (including Windows) and deploying Go Lambda functions on `provided.al2023`. |
-| `shp-patterns-creational` | Constructors, functional options, builder, factory, `sync.Once`, pools. |
+| `shp-patterns-creational` | Constructors, functional options, builder, factory, `sync.Once`, pools, `iota` enums, `init()` and global state, panic vs error. |
 | `shp-patterns-structural` | Adapter, decorator/middleware, facade, proxy, composite, embedding. |
 | `shp-patterns-behavioral` | Strategy, observer, command, chain of responsibility, state, template method, `iter.Seq` iterators, visitor. |
 | `shp-patterns-concurrency` | errgroup, worker pools, pipelines, fan-out/fan-in, semaphores, timeouts, shutdown. |
 | `shp-patterns-architecture` | Hexagonal/ports and adapters, service layer, repository, DI, unit of work, CQRS-lite, mapping to Kiro specs. |
 | `shp-patterns-resilience` | Timeouts, retries with jitter, idempotency, circuit breaker, bulkhead, outbox, saga, DLQs, SQS partial batch failures. |
+
+The process, design and quality skills (`shp-router`, `shp-tdd`, `shp-incremental-build`, `shp-debugging`, `shp-doubt-check`, `shp-simplify`, `shp-adr`, `shp-patterns-select`, `shp-api-design`, `shp-observability`) were added in v1.1.0. They are original texts inspired by MIT-licensed projects, credited in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and in each skill's `metadata.inspired_by`; the full list of changes is in [`docs/references.md`](docs/references.md#what-changed-in-v110).
 
 Try it: *"Use shp-teach to explain why `internal/order/service.go` is written this way"* or select code and ask *"why is this idiomatic?"*.
 
@@ -91,8 +107,8 @@ Try it: *"Use shp-teach to explain why `internal/order/service.go` is written th
 | Agent | Can edit? | Purpose |
 |---|---|---|
 | `shp-go-mentor` | No | Teaches with `shp-teach`; may run `go doc`, `git log/blame` and use the web. |
-| `shp-go-reviewer` | No | Reviews with `shp-go-review`; may run `go vet/test/build`, `gofmt -l`, linters, `git diff`. |
-| `shp-aws-go-builder` | Yes | Implements Go/AWS code. Go tooling allowed; `aws`, `sam`, `cdk`, `terraform`, `git commit/push` ask first; destructive commands denied. |
+| `shp-go-reviewer` | No | Reviews with `shp-go-review` (and `shp-doubt-check` on risky changes); may run `go vet/test/build`, `gofmt -l`, linters, `govulncheck`, `gosec`, `git diff`. |
+| `shp-aws-go-builder` | Yes | Implements Go/AWS code with `shp-router`, `shp-incremental-build` and `shp-tdd`. Go tooling allowed; `aws`, `sam`, `cdk`, `terraform`, `git commit/push` ask first; destructive commands denied. |
 
 All agents deny reading credential files (`.env`, `*.pem`, `*.key`, `credentials*`, ...).
 
@@ -136,7 +152,7 @@ All are **disabled by default** so nothing fails in a locked-down environment. S
 Every kit asset (skill, agent, generic steering file, hook) starts with **`shp-`** (short for shuppatsu). This guarantees that:
 
 - no two kit skills share a name, and every skill's `name` matches its folder;
-- kit skills never collide with popular complementary sets (`golang-*` from samber, `go-*` from cxuu, `aws-*` from the Agent Toolkit for AWS, `aidlc*`), so Kiro's "workspace overrides global" rule never silently shadows one with the other.
+- kit skills never collide with popular complementary sets (`golang-*` from samber, `go-*` from cxuu, `aws-*` from the Agent Toolkit for AWS, `aidlc*`, and the unprefixed names used by Addy Osmani's, Superpowers' and Matt Pocock's sets such as `test-driven-development`), so Kiro's "workspace overrides global" rule never silently shadows one with the other.
 
 When you add a skill, keep the prefix, use lower-case words separated by hyphens (max 64 characters), make the folder name equal to `name:`, and check that the name is not already used. See [`docs/references.md`](docs/references.md#name-map-kit-vs-complementary-skills) for overlaps in purpose with external skills.
 

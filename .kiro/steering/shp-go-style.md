@@ -32,6 +32,18 @@ Sources: Effective Go, Go Code Review Comments, the Go spec, Google and Uber Go 
 - Pointer receivers when the method mutates or the struct is large; be consistent per type.
 - Generics only when they remove real duplication across types; prefer interfaces for behaviour.
 
+## Enums, `init()` and panics
+
+- Enums: named integer type with `iota`, zero value is `Unknown`, `String()` plus `ParseX` that validates; never trust persisted order (see `shp-patterns-creational`).
+- `init()` only for deterministic registration with no I/O or environment reads. Build dependencies in `main` and inject them. No mutable package-level state.
+- `panic` only for impossible states and `Must*` initialisers on constants; recover at goroutine and handler boundaries and convert to errors.
+
+## Process (see `shp-router`)
+
+- Write the failing test first (`shp-tdd`); work in thin slices that stay green (`shp-incremental-build`); reproduce before fixing (`shp-debugging`).
+- Ask "is a pattern needed at all?" before adding an interface or layer (`shp-patterns-select`).
+- Do not claim "done" without command output as evidence.
+
 ## Concurrency
 
 - Never start a goroutine without knowing how it stops (context cancellation, closed channel, `errgroup`).

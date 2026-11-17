@@ -1,4 +1,4 @@
-# shuppatsu-go Kiro kit (v1.0.0)
+# shuppatsu-go Kiro kit (v1.1.0)
 
 Go + AWS starter kit for Kiro. Source: https://github.com/miyake-san/shuppatsu-go
 
@@ -22,10 +22,18 @@ Add `-Force` only if you want to overwrite files with the same names.
 
 ## Contents
 
-- **Skills:** `shp-teach`, `shp-go-review`, `shp-aws-sdk-go`, `shp-aws-lambda-go`, `shp-patterns-creational`, `shp-patterns-structural`, `shp-patterns-behavioral`, `shp-patterns-concurrency`, `shp-patterns-architecture`, `shp-patterns-resilience`
+- **Skills (20):**
+  - Entry point: `shp-router`
+  - Process (v1.1): `shp-tdd`, `shp-incremental-build`, `shp-debugging`, `shp-doubt-check`, `shp-simplify`, `shp-adr`
+  - Design (v1.1): `shp-patterns-select`, `shp-api-design`, `shp-observability`
+  - Patterns: `shp-patterns-creational`, `shp-patterns-structural`, `shp-patterns-behavioral`, `shp-patterns-concurrency`, `shp-patterns-architecture`, `shp-patterns-resilience`
+  - Go and AWS: `shp-go-review`, `shp-aws-sdk-go`, `shp-aws-lambda-go`
+  - Teaching: `shp-teach`
 - **Agents:** `shp-go-mentor`, `shp-go-reviewer`, `shp-aws-go-builder`
 - **Steering:** `shp-go-style`, `shp-go-testing`, `shp-aws-go-conventions`, `shp-security` (+ project-only `product`, `tech`, `structure`)
 - **Hooks (project only):** `hooks/shp-go-quality.json`
 - **MCP (project only):** `settings/mcp.json` with gopls and AWS servers, all disabled by default
+
+Third-party inspirations (MIT) are credited in `THIRD_PARTY_NOTICES.md` at the repository root and in each skill's `metadata.inspired_by`.
 
 Nothing in this kit needs `npx`, `uvx` or internet access to work. Optional tools (gopls, golangci-lint, govulncheck, uv) only unlock extra hooks and MCP servers.

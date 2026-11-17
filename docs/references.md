@@ -88,6 +88,36 @@ The kit uses the `shp-` prefix so none of its names collide with these sets. Som
 | Agent Toolkit for AWS | `aws-*` (e.g. `aws-serverless`, `aws-lambda-durable-functions`) | `shp-aws-lambda-go`, `shp-aws-sdk-go` |
 | AI-DLC | `aidlc*` | none |
 
+## 3b. Process and design-pattern sources (kit v1.1.0)
+
+Research from the report "Agent skills and design-pattern assets for shuppatsu-go" (November 2026). **Nothing is vendored.** The kit's v1.1 skills are original texts inspired by the sources below; credits are in [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
+
+| Source | License | What we took as inspiration | Kit result |
+|---|---|---|---|
+| [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) ([post](https://addyosmani.com/blog/agent-skills/)) | MIT | Phase workflow, anti-rationalization tables, verification gates, scope discipline, Google engineering practices (Hyrum's Law, test pyramid, small changes, Chesterton's Fence) | `shp-tdd`, `shp-debugging`, `shp-incremental-build`, `shp-doubt-check`, `shp-api-design`, `shp-observability`, `shp-adr`, `shp-simplify`, `shp-router`; five-axis review in `shp-go-review` |
+| [obra/superpowers](https://github.com/obra/superpowers) | MIT | One-hypothesis debugging, verification before completion | `shp-debugging`, gates in every v1.1 skill; otherwise reference only |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | Domain glossary, deep modules | Added as a note in `shp-patterns-architecture`; reference only |
+| [fidelisakilan/design-pattern-skills](https://github.com/fidelisakilan/design-pattern-skills) | MIT | Reuse / introduce / refactor first / no pattern, Rule of Three | `shp-patterns-select` |
+| [jaeleeps/gof-patterns](https://github.com/jaeleeps/gof-patterns) | MIT | Appropriate / Over-engineered / Misapplied / Degraded verdicts | `shp-patterns-select`, audit mode in `shp-go-review` |
+| [samber/cc-skills-golang](https://github.com/samber/cc-skills-golang) `golang-design-patterns` | MIT | Topics we lacked: enums with `iota`, `init()` and globals, panic vs error | `shp-patterns-creational`, `shp-go-style` |
+| [Learn Go with Tests](https://quii.gitbook.io/learn-go-with-tests) | Free online book | Go-native TDD | `shp-tdd` sources |
+| [ThreeDotsLabs Wild Workouts](https://github.com/ThreeDotsLabs/wild-workouts-go-ddd-example) and [DDD + CQRS + Clean Architecture](https://threedots.tech/post/ddd-cqrs-clean-architecture-combined/) | MIT / article | Complete Go DDD/CQRS reference app | cited in `shp-patterns-architecture` |
+| [trailofbits/skills](https://github.com/trailofbits/skills) | CC-BY-SA-4.0 | `supply-chain-risk-auditor`, `differential-review`, `insecure-defaults` | **Not used**; ShareAlike would apply to adapted text. Install separately where licensing allows |
+| [wshobson/agents](https://github.com/wshobson/agents) `go-concurrency-patterns`, [VoDaiLocz/Design-Patterns](https://github.com/VoDaiLocz/Design-Patterns) | MIT | none | Skipped: duplicates `shp-patterns-concurrency` or too generic |
+| [addyosmani/web-quality-skills](https://github.com/addyosmani/web-quality-skills), Addy frontend, browser-testing and web-performance skills | MIT | none | Skipped: web-frontend focused |
+
+### What changed in v1.1.0
+
+| Area | Change |
+|---|---|
+| New skills (10) | `shp-router`, `shp-tdd`, `shp-incremental-build`, `shp-debugging`, `shp-patterns-select`, `shp-doubt-check`, `shp-api-design`, `shp-observability`, `shp-adr`, `shp-simplify` |
+| Extended skills | `shp-go-review` (five axes, change sizing, evidence rule, pattern-verdict audit mode); `shp-patterns-creational` (enums with `iota`, `init()` and global state, panic vs error); `shp-patterns-architecture` (deep modules, glossary, Wild Workouts) |
+| Extended steering | `shp-go-style` (enums, `init()`, panics, process rules); `shp-security` (`govulncheck`, `gosec`, OWASP checklist, input limits, supply chain) |
+| Agents | `shp-aws-go-builder` loads `shp-router`, `shp-incremental-build`, `shp-tdd` and friends, and may run `gosec`; `shp-go-reviewer` runs `shp-doubt-check` on risky changes and may run `gosec` |
+| Mechanics added to every new skill | Anti-rationalization table, verification gate with Go command evidence, "Sources" and "Inspired by" sections, `metadata.inspired_by` |
+| Docs | `THIRD_PARTY_NOTICES.md`, this section, README and `shp-kit.md` updated |
+| Not done (by design) | Addy's git/CI-CD/shipping/deprecation skills (reference only), spec and planning skills (Kiro specs cover them), Superpowers and Matt Pocock skills (one methodology backbone) |
+
 ## 4. Primary documentation used to write the kit
 
 | Topic | Link |

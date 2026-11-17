@@ -86,6 +86,15 @@ Separate read models when query needs differ strongly from write models (for exa
 
 Represent meaningful state changes as types (`OrderPlaced`, `OrderCanceled`). Publish them via an outbox to EventBridge, SNS or SQS for other services.
 
+## Deep modules and a shared glossary
+
+- Prefer **deep modules**: a small exported surface hiding substantial behaviour (`os.Open`, `http.Client`). A package whose exports mirror its internals adds cost without hiding anything.
+- Keep a short domain glossary (in `product.md` or `docs/glossary.md`) and name types, packages and events with those exact words, so code, specs and conversations agree.
+
+## Reference implementation
+
+ThreeDotsLabs **Wild Workouts** is a complete Go example of domain, application (commands and queries), ports and adapters, repositories and CQRS, with the reasoning in the "DDD, CQRS and Clean Architecture combined" article. Study it for structure; do not copy its full layering into a small service (decide with `shp-patterns-select`, record the decision with `shp-adr`).
+
 ## Mapping to Kiro specs
 
 - `requirements.md`: user stories and acceptance criteria in domain language.
@@ -105,3 +114,6 @@ Represent meaningful state changes as types (`OrderPlaced`, `OrderCanceled`). Pu
 - Alistair Cockburn, "Hexagonal architecture": https://alistair.cockburn.us/hexagonal-architecture/
 - AWS Prescriptive Guidance, hexagonal architecture pattern: https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html
 - DynamoDB transactions: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/transaction-apis.html
+- ThreeDotsLabs, Wild Workouts (Go DDD/CQRS example): https://github.com/ThreeDotsLabs/wild-workouts-go-ddd-example
+- ThreeDotsLabs, "DDD, CQRS and Clean Architecture combined": https://threedots.tech/post/ddd-cqrs-clean-architecture-combined/
+- Deep modules and glossary ideas: *A Philosophy of Software Design* (J. Ousterhout); mattpocock/skills `codebase-design`, `domain-modeling` (MIT, read as reference only): https://github.com/mattpocock/skills
