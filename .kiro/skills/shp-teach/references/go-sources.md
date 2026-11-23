@@ -47,19 +47,10 @@ Use the most specific page. Prefer official Go sources over blogs. Offline fallb
 |---|---|
 | GoF patterns with Go examples | https://refactoring.guru/design-patterns/go |
 | Community Go pattern catalogue | https://github.com/tmrts/go-patterns |
-| Cloud design patterns (AWS) | https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/introduction.html |
-| Retries, backoff and jitter | https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/ |
-| Idempotent APIs | https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/ |
+| Microservice and distributed-systems patterns (outbox, saga, CQRS) | https://microservices.io/patterns/ |
+| Enterprise application patterns (repository, unit of work) | https://martinfowler.com/eaaCatalog/ |
 | Kit pattern skills | `shp-patterns-creational`, `shp-patterns-structural`, `shp-patterns-behavioral`, `shp-patterns-concurrency`, `shp-patterns-architecture`, `shp-patterns-resilience` |
 
-## AWS for Go
+## Cloud-provider documentation
 
-| Topic | Source |
-|---|---|
-| AWS SDK for Go v2 guide | https://docs.aws.amazon.com/sdk-for-go/v2/developer-guide/welcome.html |
-| SDK: using clients, paginators, waiters | https://docs.aws.amazon.com/sdk-for-go/v2/developer-guide/using.html |
-| SDK: error handling | https://docs.aws.amazon.com/sdk-for-go/v2/developer-guide/handle-errors.html |
-| SDK: configuration, retries | https://docs.aws.amazon.com/sdk-for-go/v2/developer-guide/configure-gosdk.html |
-| Lambda with Go | https://docs.aws.amazon.com/lambda/latest/dg/lambda-golang.html |
-| Lambda Go packaging (.zip) | https://docs.aws.amazon.com/lambda/latest/dg/golang-package.html |
-| AWS Well-Architected | https://aws.amazon.com/architecture/well-architected/ |
+Provider documentation (SDKs, serverless runtimes, managed services, well-architected guidance) belongs to the cloud-provider packs, each with its own source map. This file covers the provider-neutral Go sources only.

@@ -19,9 +19,8 @@ inclusion: always
 | HTTP | `net/http` (Go 1.22+ routing patterns on `http.ServeMux`) |
 | JSON | `encoding/json` (backed by `encoding/json/v2` since Go 1.27) |
 | Testing | `testing`, `testing/synctest`, `net/http/httptest`, fuzzing |
-| AWS | **AWS SDK for Go v2** only (`github.com/aws/aws-sdk-go-v2/...`). v1 is end-of-support. |
-| Lambda | `github.com/aws/aws-lambda-go`, runtime `provided.al2023`, binary named `bootstrap`, `arm64` by default |
-| IaC | _choose one and delete the others:_ AWS SAM / AWS CDK / Terraform |
+| Cloud provider | _fill in or delete:_ the provider this project targets, if any, and its provider pack (for example the `shp-aws-*` skills). Use the provider's current official Go SDK only. |
+| Infrastructure as code | _fill in or delete:_ the project's IaC tool (for example Terraform or the provider's native tool) |
 
 ## Commands
 

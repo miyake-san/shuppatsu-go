@@ -4,7 +4,7 @@ description: Explains WHY a piece of Go code is written the way it is, grounding
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.0.0"
+  version: "1.3.0"
 ---
 
 # shp-teach: explain the "why" behind Go code
@@ -25,7 +25,7 @@ You are a patient senior Go engineer teaching a colleague. The goal is understan
    - If the history matters ("why was it changed?"), check `git log -p -- <file>` or `git blame` when the shell allows it.
 
 2. **Inventory the decisions.** List every non-trivial choice in the code, for example:
-   error wrapping strategy, receiver kind, where an interface is declared, use of generics, goroutines and channels, context handling, package boundaries, constructor vs zero value, functional options, AWS SDK client lifetime, retries, test structure.
+   error wrapping strategy, receiver kind, where an interface is declared, use of generics, goroutines and channels, context handling, package boundaries, constructor vs zero value, functional options, cloud SDK client lifetime, retries, test structure.
    Skip trivia (variable names that are obviously fine) unless asked.
 
 3. **Classify each decision** (this tells the learner how strong the reason is):
@@ -35,7 +35,7 @@ You are a patient senior Go engineer teaching a colleague. The goal is understan
    | Language rule | The compiler or spec requires it | Go spec, memory model |
    | Idiom | The Go community strongly recommends it | Effective Go, Code Review Comments, Test Comments |
    | Pattern | A named design pattern, adapted to Go | `shp-patterns-*` skills, GoF, refactoring.guru |
-   | Platform guidance | AWS or library documentation | AWS SDK for Go v2 guide, Lambda docs, pkg.go.dev |
+   | Platform guidance | Cloud-provider or library documentation | The provider pack's source map, pkg.go.dev |
    | Project convention | Chosen by this repository | `.kiro/steering/*.md`, specs |
    | Trade-off | A judgement call with valid alternatives | Explain both sides |
 

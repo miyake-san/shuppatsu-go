@@ -1,10 +1,10 @@
 ---
 name: shp-patterns-concurrency
-description: Go concurrency patterns - goroutine lifecycle and cancellation with context, errgroup, worker pools, pipelines, fan-out/fan-in, bounded parallelism with semaphores, rate limiting, timeouts, and safe shutdown. Use when writing or explaining code with goroutines, channels, sync primitives, parallel AWS calls, or batch processing, or when debugging leaks, deadlocks and data races.
+description: Go concurrency patterns - goroutine lifecycle and cancellation with context, errgroup, worker pools, pipelines, fan-out/fan-in, bounded parallelism with semaphores, rate limiting, timeouts, and safe shutdown. Use when writing or explaining code with goroutines, channels, sync primitives, parallel remote calls, or batch processing, or when debugging leaks, deadlocks and data races.
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.0.0"
+  version: "1.3.0"
 ---
 
 # shp-patterns-concurrency
@@ -130,7 +130,7 @@ ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 defer cancel() // always release resources
 ```
 
-Prefer deadlines on the context over `time.After` in loops. In Lambda, derive from the invocation context, which already carries the function deadline.
+Prefer deadlines on the context over `time.After` in loops. In a serverless function, derive from the invocation context, which already carries the function deadline.
 
 ## Graceful shutdown
 
@@ -146,11 +146,11 @@ defer stop()
 - Channel: transferring ownership of data or signalling events between goroutines.
 - `sync/atomic` typed values (`atomic.Int64`, `atomic.Pointer[T]`) for single counters and flags.
 
-## AWS-specific notes
+## Serverless and managed-queue notes
 
-- SDK v2 clients are safe for concurrent use; share one client across goroutines.
-- Respect service quotas: bound parallelism and rely on the SDK retryer for throttling (see `shp-patterns-resilience`).
-- For SQS batch handlers in Lambda, process records concurrently with a limit and report partial batch failures instead of failing the whole batch.
+- Check each SDK's documentation for goroutine-safety; most vendor clients are safe for concurrent use and should be shared across goroutines rather than created per call.
+- Respect service quotas and rate limits: bound parallelism and rely on the client's retry and backoff for throttling (see `shp-patterns-resilience`).
+- For batch handlers fed by a managed queue, process records concurrently with a limit and report which records failed instead of failing the whole batch.
 
 ## Anti-patterns
 
@@ -166,3 +166,5 @@ defer stop()
 - Go blog, "Advanced Go Concurrency Patterns": https://go.dev/blog/io2013-talk-concurrency
 - Go memory model: https://go.dev/ref/mem
 - `errgroup`: https://pkg.go.dev/golang.org/x/sync/errgroup
+
+Provider-specific details live in the cloud-provider skill packs (for example the `shp-aws-*` skills).

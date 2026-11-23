@@ -4,7 +4,7 @@ description: Behavioral design patterns adapted to idiomatic Go - strategy with 
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.0.0"
+  version: "1.3.0"
 ---
 
 # shp-patterns-behavioral
@@ -16,7 +16,7 @@ In Go, many behavioral patterns collapse into **first-class functions**, **small
 | Need | Pattern | Go shape |
 |---|---|---|
 | Swap an algorithm at runtime | Strategy | Function type, or one-method interface |
-| Notify many listeners of events | Observer / pub-sub | Callbacks, or channels; across services: SNS/EventBridge |
+| Notify many listeners of events | Observer / pub-sub | Callbacks, or channels; across services: a message topic or event bus |
 | Encapsulate a request as a value (queue, undo, audit) | Command | Struct with `Execute(ctx) error`, or a closure |
 | Pass a request through ordered handlers | Chain of responsibility | Middleware chain |
 | Behaviour depends on current state | State | State as type + transition table, or state functions |
@@ -60,7 +60,7 @@ func (b *Bus) Publish(ctx context.Context, e OrderPlaced) {
 }
 ```
 
-In-process only. Across services, publish to Amazon SNS, EventBridge or SQS instead (see `shp-patterns-resilience` for delivery guarantees).
+In-process only. Across services, publish to a message queue, topic or event bus instead (see `shp-patterns-resilience` for delivery guarantees).
 
 ## Command
 
@@ -72,7 +72,7 @@ type CancelOrder struct{ ID string; Reason string; repo OrderRepository }
 func (c CancelOrder) Execute(ctx context.Context) error { /* ... */ return nil }
 ```
 
-Commands are a natural fit for SQS messages: serialise the command struct, consume it in a Lambda, execute idempotently.
+Commands are a natural fit for message-queue messages: serialise the command struct, consume it in a worker or serverless function, execute idempotently.
 
 ## Chain of responsibility
 
@@ -104,7 +104,7 @@ func (o *Order) Transition(to State) error {
 }
 ```
 
-For long-running, multi-step workflows across services, model the state machine in AWS Step Functions instead of in code.
+For long-running, multi-step workflows across services, persist the state and use a workflow engine or orchestrator (with retries and compensation) instead of hand-rolling it in code.
 
 ## Template method without inheritance
 
@@ -126,27 +126,25 @@ func Import(ctx context.Context, read func(context.Context) ([]Row, error), vali
 ## Iterator (Go 1.23+)
 
 ```go
+// All hides pagination: callers just range over orders.
 func (s *Store) All(ctx context.Context) iter.Seq2[Order, error] {
 	return func(yield func(Order, error) bool) {
-		p := dynamodb.NewScanPaginator(s.client, &dynamodb.ScanInput{TableName: aws.String(s.table)})
-		for p.HasMorePages() {
-			page, err := p.NextPage(ctx)
+		cursor := ""
+		for {
+			page, next, err := s.listPage(ctx, cursor) // one remote call per page
 			if err != nil {
 				yield(Order{}, err)
 				return
 			}
-			for _, item := range page.Items {
-				var o Order
-				if err := attributevalue.UnmarshalMap(item, &o); err != nil {
-					if !yield(Order{}, err) {
-						return
-					}
-					continue
-				}
+			for _, o := range page {
 				if !yield(o, nil) {
 					return
 				}
 			}
+			if next == "" {
+				return
+			}
+			cursor = next
 		}
 	}
 }
@@ -182,4 +180,7 @@ Standard-library example of a real visitor: `ast.Walk(v ast.Visitor, node)`.
 - Go blog, "Range Over Function Types": https://go.dev/blog/range-functions
 - `iter` package: `go doc iter`
 - Refactoring.Guru behavioral patterns in Go: https://refactoring.guru/design-patterns/behavioral-patterns
-- AWS Step Functions: https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html
+- Saga and workflow orchestration patterns: https://microservices.io/patterns/data/saga.html
+- Go blog, "Go Concurrency Patterns" (channels as event buses): https://go.dev/blog/pipelines
+
+Provider-specific details live in the cloud-provider skill packs (for example the `shp-aws-*` skills).

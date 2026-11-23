@@ -1,5 +1,5 @@
 ---
-name: shp-aws-lambda-go
+name: shp-aws-lambda
 description: Build, package, test and deploy AWS Lambda functions in Go - provided.al2023 runtime, bootstrap binary, arm64, lambda.norpc, handler signatures and event types from aws-lambda-go, init vs handler work, structured logging, idempotency, SQS partial batch failures, and SAM, CDK or CLI deployment including Windows builds. Use when creating or changing a Go Lambda, its build scripts or its IaC.
 license: MIT
 metadata:
@@ -7,7 +7,7 @@ metadata:
   version: "1.0.0"
 ---
 
-# shp-aws-lambda-go
+# shp-aws-lambda
 
 The managed `go1.x` runtime is deprecated. Go functions run on an **OS-only runtime**: `provided.al2023`, with an executable named `bootstrap`.
 
@@ -123,9 +123,31 @@ Use the Go Lambda construct (`GoFunction`, currently in the alpha module for eac
 - Unit-test the domain and the handler struct with fakes; call `h.handle(t.Context(), event)` directly.
 - Local invocation: `sam local invoke -e event.json` (needs Docker), or LocalStack.
 
+## API Gateway and event sources
+
+Contracts for HTTP APIs and events follow `shp-api-design`; this section adds the AWS specifics.
+
+API Gateway (REST and HTTP APIs):
+
+| Topic | Rule |
+|---|---|
+| Timeouts | The integration has a hard timeout; keep the function timeout and downstream timeouts below it |
+| Status mapping | 400 invalid input, 401/403 authn/authz, 404 missing, 409 conflict or idempotency clash, 429 throttled with `Retry-After`, 5xx server fault |
+| Error envelope | One stable envelope, e.g. `{"error":{"code":"order_not_found","message":"...","requestId":"..."}}`; use the Lambda request ID as `requestId` |
+| Throttling | Usage plans and stage throttling; clients must back off on 429 |
+| Routing | Prefer HTTP APIs with payload format 2.0 and typed `events.APIGatewayV2HTTPRequest` structs |
+
+Event sources (SQS, SNS, EventBridge):
+
+- Use the generic envelope from `shp-api-design` (`id`, `type`, `version`, `occurredAt`, `source`, `data`); consumers ignore unknown fields.
+- Delivery is at-least-once: carry a stable event ID and make handlers idempotent (`shp-aws-resilience`).
+- Handlers use the typed structs in `github.com/aws/aws-lambda-go/events` and, for SQS, return partial batch failures (`events.SQSEventResponse`).
+- Evolve schemas by adding optional fields; the EventBridge schema registry can document them.
+- Source: https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
+
 ## Related kit skills and external powers
 
-- `shp-aws-sdk-go` for SDK usage, `shp-patterns-resilience` for retries and idempotency.
+- `shp-aws-sdk` for SDK usage, `shp-aws-resilience` for AWS retries, idempotency and batch failures, `shp-patterns-resilience` for the generic patterns.
 - When available in your environment, the Kiro powers `aws-sam`, `aws-lambda-durable-functions` and `aws-lambda-managed-instances`, and the AWS Serverless MCP server, add live tooling (see `docs/references.md`).
 
 ## Sources

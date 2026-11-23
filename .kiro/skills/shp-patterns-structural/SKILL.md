@@ -1,10 +1,10 @@
 ---
 name: shp-patterns-structural
-description: Structural design patterns adapted to idiomatic Go - adapter, decorator and HTTP middleware, facade, proxy, composite, bridge, and struct embedding as composition instead of inheritance. Use when wrapping a third-party or AWS client behind your own interface, adding cross-cutting behaviour (logging, metrics, retries, auth), simplifying a complex subsystem, or when the user asks which structural pattern applies.
+description: Structural design patterns adapted to idiomatic Go - adapter, decorator and HTTP middleware, facade, proxy, composite, bridge, and struct embedding as composition instead of inheritance. Use when wrapping a third-party or cloud-provider client behind your own interface, adding cross-cutting behaviour (logging, metrics, retries, auth), simplifying a complex subsystem, or when the user asks which structural pattern applies.
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.0.0"
+  version: "1.3.0"
 ---
 
 # shp-patterns-structural
@@ -23,40 +23,37 @@ Go composes behaviour with small interfaces, embedding and function types. Most 
 | Vary abstraction and implementation independently | Bridge | Struct holding an interface field |
 | Reuse fields and methods | Embedding | Composition, not inheritance |
 
-## Adapter: keep AWS types out of the domain
+## Adapter: keep vendor types out of the domain
 
 ```go
-// Declared by the consumer (domain), not by the AWS package.
+// Declared by the consumer (domain), not by the storage or SDK package.
 type OrderRepository interface {
 	Get(ctx context.Context, id string) (Order, error)
 }
 
-// Adapter in internal/platform/dynamo.
-type DynamoOrders struct {
-	client *dynamodb.Client
-	table  string
+// Adapter in internal/platform/store, here over database/sql.
+type SQLOrders struct {
+	db *sql.DB
 }
 
-func (r *DynamoOrders) Get(ctx context.Context, id string) (Order, error) {
-	out, err := r.client.GetItem(ctx, &dynamodb.GetItemInput{
-		TableName: aws.String(r.table),
-		Key:       map[string]types.AttributeValue{"pk": &types.AttributeValueMemberS{Value: id}},
-	})
-	if err != nil {
-		return Order{}, fmt.Errorf("get order %s: %w", id, err)
-	}
-	if out.Item == nil {
-		return Order{}, ErrNotFound
-	}
+func (r *SQLOrders) Get(ctx context.Context, id string) (Order, error) {
 	var o Order
-	if err := attributevalue.UnmarshalMap(out.Item, &o); err != nil {
-		return Order{}, fmt.Errorf("decode order %s: %w", id, err)
+	err := r.db.QueryRowContext(ctx,
+		`SELECT id, customer_id, total_cents FROM orders WHERE id = $1`, id,
+	).Scan(&o.ID, &o.CustomerID, &o.TotalCents)
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return Order{}, ErrNotFound // translate the driver error into a domain error
+	case err != nil:
+		return Order{}, fmt.Errorf("get order %s: %w", id, err)
 	}
 	return o, nil
 }
 ```
 
-Why: "Accept interfaces, return structs" and "define interfaces where they are used" (Code Review Comments, "Interfaces"). The domain stays testable with a fake and independent of the SDK.
+The same shape applies to a key-value store, an object store or a third-party SDK client: the adapter owns the vendor types and error codes, and returns domain types and domain errors.
+
+Why: "Accept interfaces, return structs" and "define interfaces where they are used" (Code Review Comments, "Interfaces"). The domain stays testable with a fake and independent of any vendor SDK.
 
 ## Decorator and middleware
 
@@ -87,11 +84,11 @@ Standard-library examples: `bufio.NewReader(io.Reader)`, `io.LimitReader`, `http
 
 ## Facade
 
-A package-level API such as `billing.Charge(ctx, customer, amount)` that orchestrates several clients (DynamoDB, SQS, payment provider). Keep the facade thin; business rules live in the domain.
+A package-level API such as `billing.Charge(ctx, customer, amount)` that orchestrates several clients (database, message queue, payment provider). Keep the facade thin; business rules live in the domain.
 
 ## Proxy
 
-Same interface as the real subject, adding caching, lazy creation, authorisation or rate limiting. Example: a caching `OrderRepository` that checks an in-memory LRU before DynamoDB. Make cache invalidation explicit and bounded.
+Same interface as the real subject, adding caching, lazy creation, authorisation or rate limiting. Example: a caching `OrderRepository` that checks an in-memory LRU before the database. Make cache invalidation explicit and bounded.
 
 ## Composite
 
@@ -118,7 +115,7 @@ func (a All) Validate(o Order) error {
 ## Anti-patterns
 
 - Wrapping every external type "just in case": adapt only at architecture boundaries.
-- Huge interfaces mirroring a whole AWS client. Declare only the methods you call.
+- Huge interfaces mirroring a whole vendor SDK client. Declare only the methods you call.
 - Decorators that change semantics (swallowing errors) instead of adding behaviour.
 
 ## Sources
@@ -126,4 +123,7 @@ func (a All) Validate(o Order) error {
 - Go Code Review Comments, "Interfaces": https://go.dev/wiki/CodeReviewComments#interfaces
 - Effective Go, "Embedding": https://go.dev/doc/effective_go#embedding
 - Refactoring.Guru structural patterns in Go: https://refactoring.guru/design-patterns/structural-patterns
-- `errors.Join`: `go doc errors.Join`; DynamoDB `attributevalue`: `go doc github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue`
+- `errors.Join`: `go doc errors.Join`; `database/sql` errors: `go doc database/sql.ErrNoRows`
+- Gang of Four adapter, decorator, facade and proxy overview: https://refactoring.guru/design-patterns/structural-patterns
+
+Provider-specific details live in the cloud-provider skill packs (for example the `shp-aws-*` skills).

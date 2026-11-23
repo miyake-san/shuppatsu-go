@@ -4,7 +4,7 @@ description: Decide whether a Go design needs a pattern at all - reuse what exis
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.1.0"
+  version: "1.3.0"
   inspired_by: "https://github.com/fidelisakilan/design-pattern-skills (/pattern, MIT); https://github.com/jaeleeps/gof-patterns (verdict scale, MIT); https://github.com/samber/cc-skills-golang (golang-design-patterns, MIT)"
 ---
 
@@ -14,7 +14,7 @@ Patterns solve recurring pain. No pain, no pattern. In Go the default answer to 
 
 ## Step 1: name the pain
 
-Write one sentence: *"Today X is hard because Y."* Examples: "adding a payment provider means editing five files", "tests need a real DynamoDB", "the constructor has nine parameters". If you cannot write it, **stop: no pattern**.
+Write one sentence: *"Today X is hard because Y."* Examples: "adding a payment provider means editing five files", "tests need a real database", "the constructor has nine parameters". If you cannot write it, **stop: no pattern**.
 
 ## Step 2: choose one of four outcomes
 
@@ -35,7 +35,7 @@ Write one sentence: *"Today X is hard because Y."* Examples: "adding a payment p
 | Incompatible interfaces, cross-cutting wrapper (logging, retry, auth) | Adapter, decorator, middleware | `shp-patterns-structural` |
 | Behaviour that varies at runtime | Strategy, state, command, chain | `shp-patterns-behavioral` |
 | Parallel work, pipelines, shutdown | errgroup, worker pool, fan-out | `shp-patterns-concurrency` |
-| Domain logic tangled with AWS or HTTP | Ports and adapters, repository, service layer | `shp-patterns-architecture` |
+| Domain logic tangled with cloud SDKs, a database or HTTP | Ports and adapters, repository, service layer | `shp-patterns-architecture` |
 | Remote calls fail, duplicates, partial failure | Timeouts, retry with jitter, idempotency, outbox, saga | `shp-patterns-resilience` |
 
 Go-specific idioms to check before reaching for a GoF pattern: consumer-side interfaces, small interfaces, embedding, closures as strategies, `iota` enums with a validating `String`/`Parse`, `init()` only for registration with no side effects, panic only for programmer errors.

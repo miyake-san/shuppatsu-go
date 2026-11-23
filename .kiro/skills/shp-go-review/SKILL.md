@@ -1,10 +1,10 @@
 ---
 name: shp-go-review
-description: Structured code review checklist for Go changes - correctness, error handling, context and concurrency, API design, tests, security, performance, AWS SDK usage and spec compliance - with severity-ranked findings. Use when asked to review a diff, a PR, a file, or the output of a Kiro spec task, or before committing Go code. Reports findings; it does not rewrite code unless asked.
+description: Structured code review checklist for Go changes - correctness, error handling, context and concurrency, API design, tests, security, performance, cloud SDK usage and spec compliance - with severity-ranked findings. Use when asked to review a diff, a PR, a file, or the output of a Kiro spec task, or before committing Go code. Reports findings; it does not rewrite code unless asked.
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.0.0"
+  version: "1.3.0"
 ---
 
 # shp-go-review
@@ -19,7 +19,8 @@ metadata:
    - `go test -short ./...`
    - optional: `golangci-lint run`, `govulncheck ./...`, `go test -race ./...` (needs cgo)
 3. **Read the code against the checklist** below. Look at callers and tests, not only the diff.
-4. **Report** findings ranked by severity using the output format. Only report issues you can point to; label anything uncertain as a question.
+4. **Validate against documentation** (`shp-go-verify`): confirm API behaviour, version availability, deprecations and idioms behind each finding with `go doc` and trusted sites (go.dev, pkg.go.dev, golang GitHub, Google/Uber style guides). Mark what you could not verify as unverified.
+5. **Report** findings ranked by severity using the output format. Only report issues you can point to; label anything uncertain as a question.
 
 ## Checklist
 
@@ -52,12 +53,11 @@ metadata:
 ### Security
 - No secrets, tokens or credentials in code, tests, logs or fixtures.
 - Input validated at boundaries; SQL parameterised; no `InsecureSkipVerify`; HTTP clients have timeouts.
-- Least-privilege IAM in any IaC change.
+- Least-privilege cloud permissions in any infrastructure-as-code change.
 
-### AWS SDK and Lambda
-- One `LoadDefaultConfig` and long-lived clients; context passed to every call.
-- Paginators and waiters instead of manual loops; response bodies closed.
-- Lambda handlers idempotent; init outside the handler; partial batch failures for SQS.
+### Cloud SDK usage (when the code uses one)
+- Clients are created once and reused; context passed to every call; timeouts set.
+- Cloud-provider documentation is verified by the matching provider agent and skills (for example `shp-aws-builder`).
 
 ### Performance (only when relevant)
 - No allocation or I/O inside hot loops without need; preallocate when size is known.
@@ -68,7 +68,7 @@ Every finding belongs to one axis; make sure each axis was actually looked at:
 1. **Correctness:** does it do what the spec says, including edge cases and failure paths?
 2. **Readability:** could a new teammate follow it? Names, structure, comments that explain why.
 3. **Architecture:** package boundaries, dependency direction, fit with `structure.md` and existing patterns.
-4. **Security:** input handling, secrets, IAM, dependencies (`shp-security`).
+4. **Security:** input handling, secrets, permissions, dependencies (`shp-security`).
 5. **Performance:** only where it matters, backed by a benchmark or profile.
 
 ### Change size

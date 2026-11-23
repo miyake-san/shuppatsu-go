@@ -1,10 +1,10 @@
 ---
 name: shp-debugging
-description: Systematic root-cause debugging for Go services and Lambda functions - reproduce, localize, reduce, fix, guard - using go test -run, -race, -count, Delve, pprof, goroutine dumps and CloudWatch Logs. Use when a test fails, a build breaks, behaviour differs from expectations, a goroutine leaks or deadlocks, or a Lambda errors in production.
+description: Systematic root-cause debugging for Go services and serverless functions - reproduce, localize, reduce, fix, guard - using go test -run, -race, -count, Delve, pprof, goroutine dumps and platform logs. Use when a test fails, a build breaks, behaviour differs from expectations, a goroutine leaks or deadlocks, or a serverless function errors in production.
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.1.0"
+  version: "1.3.0"
   inspired_by: "https://github.com/addyosmani/agent-skills (debugging-and-error-recovery, MIT); https://github.com/obra/superpowers (systematic-debugging, MIT, idea only)"
 ---
 
@@ -31,8 +31,8 @@ Stop guessing. Do not change code until you can explain **why** it fails. A fix 
 | High CPU or memory | `go test -cpuprofile/-memprofile`, `net/http/pprof` in a debug build, `go tool pprof -http=:0` |
 | Build or type error | Read the first error; `go build ./... 2>&1 | head`; `go mod why`, `go mod tidy` |
 | Panic | Read the stack from the top; find the first frame in your code; check nil maps, nil interface holding a nil pointer, slice bounds |
-| Lambda errors or timeouts | CloudWatch Logs Insights on the request ID, X-Ray trace, check timeout vs downstream timeouts, cold-start init errors, DLQ contents |
-| AWS SDK errors | Unwrap with `errors.As` to the API error code, check Region, credentials, IAM; see `shp-aws-sdk-go` |
+| Serverless function errors or timeouts | Platform logs filtered by request ID, distributed trace, timeout vs downstream timeouts, cold-start init errors, dead-letter queue contents |
+| Cloud SDK errors | Unwrap with `errors.As` to the API error code; check region, credentials and permissions; for provider specifics use that provider's pack (for example `shp-aws-sdk`) |
 | Works locally, fails in CI | `go version`, `GOOS/GOARCH`, `CGO_ENABLED`, env vars, file paths and case sensitivity, time zones, test ordering |
 
 ## Rules
@@ -65,8 +65,10 @@ Stop guessing. Do not change code until you can explain **why** it fails. A fix 
 - Data race detector: https://go.dev/doc/articles/race_detector
 - Delve: https://github.com/go-delve/delve
 - Profiling Go programs: https://go.dev/blog/pprof
-- Lambda Go function errors and logging: https://docs.aws.amazon.com/lambda/latest/dg/golang-exceptions.html , https://docs.aws.amazon.com/lambda/latest/dg/golang-logging.html
+- `runtime/pprof` and `net/http/pprof`: `go doc runtime/pprof`, `go doc net/http/pprof`
 - `git bisect`: https://git-scm.com/docs/git-bisect
+
+Provider-specific details live in the cloud-provider skill packs (for example the `shp-aws-*` skills).
 
 ## Inspired by
 

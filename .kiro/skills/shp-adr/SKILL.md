@@ -4,7 +4,7 @@ description: Record architecture decisions as short ADRs in docs/adr, with conte
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.1.0"
+  version: "1.3.0"
   inspired_by: "https://github.com/addyosmani/agent-skills (documentation-and-adrs, MIT); https://adr.github.io/"
 ---
 
@@ -14,7 +14,7 @@ Code shows **what**; an ADR records **why** and what was rejected. Write one whe
 
 ## When to write one
 
-Yes: new framework or AWS service, data store choice, sync vs async, module or package boundary, error and retry policy, public API shape, deviation from kit steering, security trade-off.
+Yes: new framework or cloud service, data store choice, sync vs async, module or package boundary, error and retry policy, public API shape, deviation from kit steering, security trade-off.
 No: renames, formatting, bug fixes, anything obvious from the code or a one-line comment.
 
 ## Where and how
@@ -82,7 +82,7 @@ The ADR has status, date, at least two options including "do nothing", a decisio
 
 - Michael Nygard, "Documenting Architecture Decisions": https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions
 - ADR templates and tooling: https://adr.github.io/ , MADR: https://adr.github.io/madr/
-- AWS Prescriptive Guidance, ADR process: https://docs.aws.amazon.com/prescriptive-guidance/latest/architectural-decision-records/adr-process.html
+- ThoughtWorks Technology Radar, lightweight ADRs: https://www.thoughtworks.com/radar/techniques/lightweight-architecture-decision-records
 - Go doc comments (for in-code documentation): https://go.dev/doc/comment
 
 ## Inspired by

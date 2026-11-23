@@ -1,12 +1,12 @@
 ---
 inclusion: auto
-name: shp-aws-go-conventions
+name: shp-aws-conventions
 description: AWS conventions for Go code - AWS SDK for Go v2, Lambda handlers, IAM, configuration, retries and observability. Use when code imports aws-sdk-go-v2 or aws-lambda-go, or when writing IaC (SAM, CDK, Terraform) for a Go service.
 ---
 
 # AWS + Go conventions (shuppatsu-go kit)
 
-Details and examples live in the skills `shp-aws-sdk-go` and `shp-aws-lambda-go`.
+Details and examples live in the skills `shp-aws-sdk`, `shp-aws-lambda`, `shp-aws-resilience` and `shp-aws-observability`.
 
 ## SDK
 

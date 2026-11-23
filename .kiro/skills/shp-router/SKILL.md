@@ -20,7 +20,7 @@ Load only the skills the current phase needs (progressive disclosure). Do not lo
 | Design | Choosing structure or a pattern | `shp-patterns-select` first, then the matching `shp-patterns-*` |
 | Design | Exported API, HTTP endpoint, event schema | `shp-api-design` |
 | Build | Implementing any behaviour | `shp-incremental-build` + `shp-tdd` |
-| Build | AWS SDK, Lambda | `shp-aws-sdk-go`, `shp-aws-lambda-go` |
+| Build | Cloud-provider specifics (only when the project uses that provider) | The provider pack, e.g. AWS: `shp-aws-sdk`, `shp-aws-lambda`, `shp-aws-resilience`, `shp-aws-observability` |
 | Build | Remote calls, queues, retries | `shp-patterns-resilience` |
 | Build | Goroutines, pipelines | `shp-patterns-concurrency` |
 | Verify | Test failing, build broken, odd behaviour | `shp-debugging` |
@@ -28,7 +28,19 @@ Load only the skills the current phase needs (progressive disclosure). Do not lo
 | Review | Reviewing a diff or PR | `shp-go-review` (agent `shp-go-reviewer`) |
 | Review | Code works but is hard to read | `shp-simplify` |
 | Ship | Adding logs, metrics, traces, alerts | `shp-observability` |
+| Verify | Check work against official docs (API, version, idiom) | `shp-go-verify` (trusted Go sites; provider claims are checked against the provider's official docs by its pack) |
 | Learn | "Why is it written this way?" | `shp-teach` (agent `shp-go-mentor`) |
+
+## Which agent
+
+| Work | Agent |
+|---|---|
+| Cloud-agnostic Go: services, libraries, CLIs, tests, refactors, patterns, performance | `shp-go-expert` |
+| Cloud provider work (pack per provider) | AWS: `shp-aws-builder` (SDK, Lambda, event sources, IAM, IaC). Future packs: `shp-gcp-*`, `shp-azure-*` |
+| Explain why | `shp-go-mentor` (read-only) |
+| Review a change | `shp-go-reviewer` (read-only) |
+
+The Go set (`shp-go-*`, `shp-patterns-*`, process and design skills) is cloud-agnostic. Each cloud provider is a separate pack named `shp-<provider>-*`, so adding a provider never changes the Go set. All agents validate their technical claims against trusted documentation before reporting.
 
 ## Typical flows
 

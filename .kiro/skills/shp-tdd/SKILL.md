@@ -4,7 +4,7 @@ description: Test-driven development loop for Go - red, green, refactor with tab
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.1.0"
+  version: "1.3.0"
   inspired_by: "https://github.com/addyosmani/agent-skills (test-driven-development, MIT); https://quii.gitbook.io/learn-go-with-tests"
 ---
 
@@ -30,7 +30,7 @@ Bug fixes: first write a test that reproduces the bug and fails (**prove-it patt
 | Context in a test | `t.Context()` (Go 1.24+), cancelled when the test ends |
 | Temp files, cleanup | `t.TempDir()`, `t.Cleanup()`, `t.Setenv()` |
 | Time-dependent or concurrent code | `testing/synctest` (Go 1.25+) instead of `time.Sleep` |
-| Dependencies (DynamoDB, S3, HTTP) | A small interface declared in the consumer package plus a hand-written fake; see `shp-patterns-architecture` and `shp-aws-sdk-go` |
+| Dependencies (database, object store, message queue, HTTP) | A small interface declared in the consumer package plus a hand-written fake; see `shp-patterns-architecture` |
 | Parsers, encoders, validators | `go test -fuzz` with a seed corpus in `testdata/fuzz` |
 | Hot paths | `b.Loop()` benchmark (Go 1.24+) and `benchstat`; measure before optimising |
 

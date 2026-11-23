@@ -4,7 +4,7 @@ description: Deliver Go changes as thin vertical slices - each slice compiles, p
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.1.0"
+  version: "1.3.0"
   inspired_by: "https://github.com/addyosmani/agent-skills (incremental-implementation, MIT)"
 ---
 
@@ -36,7 +36,7 @@ When working from Kiro specs, map one `tasks.md` task to one or more slices; nev
 
 - Behind a flag or config value that defaults to the old behaviour.
 - Expand then contract for schema or API changes: add the new shape, migrate readers and writers, then remove the old one in a later change (see `shp-api-design`).
-- Keep changes reversible: no destructive AWS or database command without an explicit user OK.
+- Keep changes reversible: no destructive cloud, infrastructure or database command without an explicit user OK.
 
 ## Anti-rationalization
 

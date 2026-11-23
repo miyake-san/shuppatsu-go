@@ -1,5 +1,5 @@
 ---
-name: shp-aws-sdk-go
+name: shp-aws-sdk
 description: How to use the AWS SDK for Go v2 correctly - loading config, client lifetime, context and timeouts, retries, paginators, waiters, error handling with smithy.APIError and modeled errors, DynamoDB attributevalue, S3 streaming bodies, and testing SDK code with consumer-side interfaces and fakes. Use when writing, reviewing or explaining Go code that imports github.com/aws/aws-sdk-go-v2, or when migrating from aws-sdk-go v1.
 license: MIT
 metadata:
@@ -7,7 +7,7 @@ metadata:
   version: "1.0.0"
 ---
 
-# shp-aws-sdk-go
+# shp-aws-sdk
 
 AWS SDK for Go **v1 is end-of-support**. All new code uses v2 modules: `github.com/aws/aws-sdk-go-v2/config`, `.../aws`, `.../service/<name>`.
 

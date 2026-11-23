@@ -4,7 +4,7 @@ description: Creational design patterns adapted to idiomatic Go - constructor fu
 license: MIT
 metadata:
   kit: shuppatsu-go
-  version: "1.0.0"
+  version: "1.3.0"
 ---
 
 # shp-patterns-creational
@@ -20,7 +20,7 @@ Go has no classes, constructors or inheritance. Creational patterns become plain
 | Many optional settings with defaults | Functional options |
 | Step-by-step assembly with validation at the end | Builder (rare in Go; options usually win) |
 | Caller picks an implementation at runtime | Factory function returning an interface |
-| Families of related implementations (e.g. AWS vs in-memory) | Abstract factory: a struct of constructors or an interface |
+| Families of related implementations (e.g. cloud-backed vs in-memory) | Abstract factory: a struct of constructors or an interface |
 | Exactly one lazily-initialised instance | `sync.Once` / `sync.OnceValue` (avoid global mutable state when possible) |
 | Expensive, short-lived buffers | `sync.Pool` |
 
@@ -28,7 +28,7 @@ Go has no classes, constructors or inheritance. Creational patterns become plain
 
 ```go
 // New validates invariants once, so methods can assume them.
-func New(table string, db DynamoAPI) (*Store, error) {
+func New(table string, db KeyValueAPI) (*Store, error) {
 	if table == "" {
 		return nil, errors.New("store: table name is required")
 	}
@@ -64,7 +64,7 @@ func NewServer(addr string, opts ...Option) *Server {
 - Use when there are several optional knobs and you want backwards-compatible growth.
 - Required parameters stay positional; only optional ones become options.
 - If options can fail, use `type Option func(*Server) error`.
-- Real-world example: AWS SDK v2 `s3.NewFromConfig(cfg, func(o *s3.Options) { o.UsePathStyle = true })`.
+- Real-world example: `grpc.NewClient(target, grpc.WithTransportCredentials(creds))` (`go doc google.golang.org/grpc.DialOption`); many vendor SDKs use the same shape.
 - Alternative: a `Config` struct literal. Simpler and fine for internal code; options shine in public APIs.
 
 ## Builder
@@ -103,29 +103,29 @@ Use only when construction is genuinely multi-step. Record the first error and r
 ```go
 type Notifier interface{ Notify(ctx context.Context, msg string) error }
 
-func NewNotifier(kind string, cfg aws.Config) (Notifier, error) {
+func NewNotifier(kind string, cfg Config) (Notifier, error) {
 	switch kind {
-	case "sns":
-		return &snsNotifier{client: sns.NewFromConfig(cfg)}, nil
-	case "log":
-		return &logNotifier{}, nil
+	case "webhook":
+		return &webhookNotifier{url: cfg.WebhookURL, client: &http.Client{Timeout: 5 * time.Second}}, nil
+	case "memory":
+		return &memoryNotifier{}, nil
 	default:
 		return nil, fmt.Errorf("unknown notifier %q", kind)
 	}
 }
 ```
 
-An abstract factory in Go is usually a small struct that groups constructors for one environment (for example `AWSAdapters` vs `InMemoryAdapters`) wired in `main`. Do not build factory hierarchies.
+An abstract factory in Go is usually a small struct that groups constructors for one environment (for example `CloudAdapters` vs `InMemoryAdapters`) wired in `main`. Do not build factory hierarchies.
 
 ## Singleton (use sparingly)
 
 ```go
-var loadConfig = sync.OnceValues(func() (aws.Config, error) {
-	return config.LoadDefaultConfig(context.Background())
+var loadConfig = sync.OnceValues(func() (Config, error) {
+	return ParseConfigFromEnv(os.Getenv) // read once, reuse everywhere
 })
 ```
 
-Prefer creating dependencies in `main` and passing them down (dependency injection by constructor). Package-level singletons hide dependencies and make tests harder. In Lambda, initialise at package level or in `main` before `lambda.Start` so warm invocations reuse it.
+Prefer creating dependencies in `main` and passing them down (dependency injection by constructor). Package-level singletons hide dependencies and make tests harder. In a serverless function, initialise clients at package level or in `main` before starting the handler loop so warm invocations reuse them.
 
 ## Prototype
 
@@ -133,7 +133,7 @@ Go copies structs by value. Provide a `Clone()` method only when the struct hold
 
 ## Object pool
 
-`sync.Pool` for temporary objects that are expensive to allocate (buffers in hot paths). Do not pool connections with `sync.Pool`; clients such as `http.Client` and AWS SDK clients already manage their own connection pools.
+`sync.Pool` for temporary objects that are expensive to allocate (buffers in hot paths). Do not pool connections with `sync.Pool`; clients such as `http.Client` and most vendor SDK clients already manage their own connection pools.
 
 ## Enums with `iota`
 
@@ -201,3 +201,5 @@ func ParseStatus(v string) (Status, error) {
 - samber/cc-skills-golang `golang-design-patterns` (topics: enums, `init()` and globals, panic vs error): https://github.com/samber/cc-skills-golang
 
 Pattern choice (including "no pattern") is decided first with `shp-patterns-select`.
+
+Provider-specific details live in the cloud-provider skill packs (for example the `shp-aws-*` skills).

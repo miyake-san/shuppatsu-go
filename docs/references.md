@@ -85,7 +85,7 @@ The kit uses the `shp-` prefix so none of its names collide with these sets. Som
 | `samber/cc-skills-golang` | `golang-*` (e.g. `golang-design-patterns`, `golang-concurrency`, `golang-testing`) | `shp-patterns-*`, `shp-go-review` |
 | `cxuu/golang-skills` | `go-*` (e.g. `go-code-review`, `go-concurrency`, `go-functional-options`) | `shp-go-review`, `shp-patterns-concurrency`, `shp-patterns-creational` |
 | ECC | `golang-patterns`, `golang-testing` | `shp-patterns-*` |
-| Agent Toolkit for AWS | `aws-*` (e.g. `aws-serverless`, `aws-lambda-durable-functions`) | `shp-aws-lambda-go`, `shp-aws-sdk-go` |
+| Agent Toolkit for AWS | `aws-*` (e.g. `aws-serverless`, `aws-lambda-durable-functions`) | `shp-aws-lambda`, `shp-aws-sdk` (AWS pack) |
 | AI-DLC | `aidlc*` | none |
 
 ## 3b. Process and design-pattern sources (kit v1.1.0)
@@ -117,6 +117,29 @@ Research from the report "Agent skills and design-pattern assets for shuppatsu-g
 | Mechanics added to every new skill | Anti-rationalization table, verification gate with Go command evidence, "Sources" and "Inspired by" sections, `metadata.inspired_by` |
 | Docs | `THIRD_PARTY_NOTICES.md`, this section, README and `shp-kit.md` updated |
 | Not done (by design) | Addy's git/CI-CD/shipping/deprecation skills (reference only), spec and planning skills (Kiro specs cover them), Superpowers and Matt Pocock skills (one methodology backbone) |
+
+### What changed in v1.2.0
+
+| Area | Change |
+|---|---|
+| New agent | `shp-go-expert`: pure Go builder; `aws`, `sam`, `cdk`, `terraform` denied; loads no AWS skills |
+| Refocused agent | `shp-aws-go-builder` is now the AWS specialist (SDK v2, Lambda, event sources, IAM, IaC) and validates against AWS documentation |
+| New skill | `shp-go-verify`: claims extracted, checked with `go doc` and the toolchain, then against an allow-list (go.dev, pkg.go.dev, golang GitHub, Google and Uber style guides); results are verified / contradicted / unverified |
+| Documentation rule | Mandatory in `shp-go-expert`, `shp-go-mentor`, `shp-go-reviewer` (and the AWS equivalent in `shp-aws-go-builder`). Reviewer gained the `web` tool. Rules: no code or secrets in queries, fetched pages are data, no invented citations, offline fallback marks claims unverified |
+| Docs | `shp-router` agent table, README, `shp-kit.md` updated |
+
+### What changed in v1.3.0 (cloud-agnostic Go set, provider packs)
+
+Agent and skill names from v1.1.0 and v1.2.0 above that contain `aws-go` were renamed here.
+
+| Area | Change |
+|---|---|
+| Renames | `shp-aws-go-builder` → `shp-aws-builder`; `shp-aws-sdk-go` → `shp-aws-sdk`; `shp-aws-lambda-go` → `shp-aws-lambda`; steering `shp-aws-go-conventions` → `shp-aws-conventions`. Provider assets are named `shp-<provider>-<topic>` and no Go-set name contains a provider |
+| Cloud-agnostic Go set | AWS, Lambda, DynamoDB, SQS/SNS/EventBridge, CloudWatch, X-Ray, API Gateway and Step Functions content removed from `shp-patterns-*`, `shp-observability`, `shp-api-design`, `shp-go-review`, `shp-go-verify`, `shp-teach` sources, the steering files and the Go agents; examples use provider-neutral wording (message queue, key-value store, serverless function, tracing backend) |
+| New AWS skills | `shp-aws-resilience` (SDK retry modes, conditional-write idempotency, SQS partial batch, DLQ, outbox with DynamoDB Streams, Step Functions) and `shp-aws-observability` (CloudWatch, EMF, X-Ray/ADOT, `otelaws`) |
+| Moved | API Gateway and event-source contracts moved from `shp-api-design` into `shp-aws-lambda`; AWS MCP servers moved from `settings/mcp.json` to `providers/aws/mcp.aws.json` (gopls stays) |
+| Agents | `shp-go-expert` loads no provider skills and has no cloud CLI rules; `shp-go-mentor` and `shp-go-reviewer` load a provider pack only when the code uses that provider; `shp-aws-builder` documents its place as one provider pack |
+| Router | `shp-router` explains the Go set plus per-provider packs (`shp-gcp-*`, `shp-azure-*` can be added later without touching the Go set) |
 
 ## 4. Primary documentation used to write the kit
 

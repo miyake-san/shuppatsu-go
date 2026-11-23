@@ -19,7 +19,7 @@ Sources: Go Test Comments wiki, Table Driven Tests wiki, `testing` package docs.
 ## Test doubles
 
 - Depend on small consumer-side interfaces so tests can pass hand-written fakes. Prefer fakes and stubs over mocking frameworks.
-- For AWS SDK v2, wrap only the client methods you call in an interface (e.g. `GetItem`, `PutItem`) and fake that interface.
+- For any cloud or vendor SDK, wrap only the client methods you call in an interface (for example `Get`, `Put`) and fake that interface.
 - For HTTP, use `net/http/httptest` (`httptest.NewServer`, `httptest.NewRecorder`).
 
 ## Time and concurrency
